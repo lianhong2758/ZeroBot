@@ -81,6 +81,7 @@ func (ctx *Ctx) CheckSession() Rule {
 
 // Send 快捷发送消息/合并转发
 func (ctx *Ctx) Send(msg interface{}) message.MessageID {
+	SentNum++
 	event := ctx.Event
 	m, ok := msg.(message.Message)
 	if !ok {

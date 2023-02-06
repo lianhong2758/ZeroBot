@@ -30,6 +30,9 @@ type Config struct {
 	Driver         []Driver      `json:"-"`                // 通信驱动
 }
 
+// SentNum-ReceiptNum统计消息数目
+var SentNum, ReceiptNum int = 0, 0
+
 // APICallers 所有的APICaller列表， 通过self-ID映射
 var APICallers callerMap
 
@@ -209,6 +212,7 @@ func processEventAsync(response []byte, caller APICaller, maxwait time.Duration)
 		event.DetailType = event.RequestType
 	}
 	if event.PostType == "message" {
+		ReceiptNum++
 		preprocessMessageEvent(&event)
 	}
 	ctx := &Ctx{
@@ -463,4 +467,13 @@ func RangeBot(iter func(id int64, ctx *Ctx) bool) {
 	APICallers.Range(func(key int64, value APICaller) bool {
 		return iter(key, &Ctx{caller: value})
 	})
+}
+
+// GetMessageNum 获取程序此次运行接收和发送的总消息数
+func GetMessageNum(Numtype string) int {
+	if Numtype == "sent" {
+		return SentNum
+	} else {
+		return ReceiptNum
+	}
 }
