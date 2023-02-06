@@ -31,7 +31,7 @@ type Config struct {
 }
 
 // SentNum-ReceiptNum统计消息数目
-var SentNum, ReceiptNum int = 0, 0
+var sentNum, receiptNum int64 = 0, 0
 
 // APICallers 所有的APICaller列表， 通过self-ID映射
 var APICallers callerMap
@@ -201,7 +201,7 @@ func processEventAsync(response []byte, caller APICaller, maxwait time.Duration)
 		}
 		msgid = message.NewMessageIDFromString(event.MessageID.(string))
 	}
-
+	atomic.AddInt64(&receiptNum, 1)
 	switch event.PostType { // process DetailType
 	case "message", "message_sent":
 		event.DetailType = event.MessageType
@@ -212,7 +212,6 @@ func processEventAsync(response []byte, caller APICaller, maxwait time.Duration)
 		event.DetailType = event.RequestType
 	}
 	if event.PostType == "message" {
-		ReceiptNum++
 		preprocessMessageEvent(&event)
 	}
 	ctx := &Ctx{
@@ -470,11 +469,10 @@ func RangeBot(iter func(id int64, ctx *Ctx) bool) {
 }
 
 // GetMessageNum 获取程序此次运行接收和发送的总消息数
-// 传入"sent"为发送消息数,其余任何均为接收消息数
-func GetMessageNum(Numtype string) int {
+func GetMessageNum(Numtype string) int64 {
 	if Numtype == "sent" {
-		return SentNum
+		return sentNum
 	} else {
-		return ReceiptNum
+		return receiptNum
 	}
 }

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"reflect"
 	"sync"
+	"sync/atomic"
 
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
@@ -81,7 +82,7 @@ func (ctx *Ctx) CheckSession() Rule {
 
 // Send 快捷发送消息/合并转发
 func (ctx *Ctx) Send(msg interface{}) message.MessageID {
-	SentNum++
+	atomic.AddInt64(&sentNum, 1)
 	event := ctx.Event
 	m, ok := msg.(message.Message)
 	if !ok {
@@ -113,6 +114,7 @@ func (ctx *Ctx) SendChain(msg ...message.MessageSegment) message.MessageID {
 
 // Echo 向自身分发虚拟事件
 func (ctx *Ctx) Echo(response []byte) {
+	atomic.AddInt64(&sentNum, 1)
 	evring.processEvent(response, ctx.caller)
 }
 
