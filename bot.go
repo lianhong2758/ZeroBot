@@ -470,6 +470,7 @@ func RangeBot(iter func(id int64, ctx *Ctx) bool) {
 }
 
 // GetMessageNum 获取程序此次运行接收和发送的总消息数
+// 传入"sent"为发送消息数,其余任何均为接收消息数
 func GetMessageNum(Numtype string) int {
 	if Numtype == "sent" {
 		return SentNum
